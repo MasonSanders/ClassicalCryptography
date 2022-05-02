@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport", content="width=device-width, initial-scale=1.0" />
+    <title>Cryptography Solver</title>
+    <script src="solver.js"></script>
+  </head>
+  <body>
+    <h1>Classical Cryptography Solver</h1>
+    <div id="DecryptDiv">
+      <h2>Decryption</h2>
+      <div id="ShiftCipherDivD">
+        <h3>Shift Cipher</h3>
+        <p>Enter ciphertext to be decrypted:</p>
+        <textarea id="ShiftCipherText" rows="16" cols="80"></textarea>
+        <br></br>
+        <p id="ShiftDErrorOut"></p>
+        <button id="ShiftDBtn" onclick="shiftCipherDecrypt()">Decrypt</button>
+        <br></br>
+        <p id="ShiftDPlainOut"></p>
+      </div>
+      <div id="KeywordCipherDivD">
+        <h3>Keyword Cipher</h3>
+        <label for="KeyDKeyword">Keyword:</label>
+        <input type="text" id="KeyDKeyword">
+        </input>
+        <br></br>
+        <p>Enter ciphertext to be decrypted:</p>
+        <textarea id="KeyCipherText" rows="16" cols="80"></textarea>
+        <br />
+        <p id="KeyDErrorOut"></p>
+        <button id="KeyDBtn" onclick="keywordCipherDecrypt()">Decrypt</button>
+        <br />
+        <p id="KeyDPlainOut"></p>
+      </div>
+      <div id="VigenereCipherDivD">
+        <h3>Vigenere Cipher</h3>
+        <label>Keyword:</label>
+        <input type="text" id="VigCipherKeyword">
+        </input>
+        <br></br>
+        <p>Enter ciphertext to be decrypted:</p>
+        <textarea id="VigenereCipherText" rows="16" cols="80"></textarea>
+      </div>
+      <div id="ColumnarCipherDivD">
+        <h3>Columnar Transposition Cipher</h3>
+        <label>Keyword:</label>
+        <input type="text" id="ColDKeyword">
+        </input>
+        <br />
+        <p>Enter ciphertext to be decrypted:</p>
+        <textarea id="ColCipherText" rows="16" cols="80"></textarea>
+        <br />
+        <p id="ColDErrorOut"></p>
+        <button id="ColDBtn" onclick="columnarCipherDecrypt()">Decrypt</button>
+        <br />
+        <p id="ColDPlainOut"></p>
+      </div>
+    </div>
+    <div id="EncryptDiv">
+      <h2>Encryption</h2>
+      <div id="ShiftCipherDivE">
+        <h3>Shift Cipher</h3>
+        <label>Shift Amount:</label>
+        <input type="number" id="CaesarShiftAmount" min="1" max="25" value="1">
+        </input>
+        <br />
+        <p>Enter text to be encrypted:</p>
+        <textarea id="ShiftPlainText" rows="16" cols="80"></textarea>
+        <br />
+        <p id="ShiftEErrorOut"></p>
+        <button id="ShiftEBtn" onclick="shiftCipherEncrypt()">Encrypt</button>
+        <br />
+        <p id="ShiftECipherOut"></p>
+      </div>
+      <div id="KeywordCipherDivE">
+        <h3>Keyword Cipher</h3>
+        <label>Keyword:</label>
+        <input type="text" id="KeyEKeyword">
+        </input>
+        <label>Shift Amount:</label>
+        <input type="number" id="KeyShiftAmount" min="0" max="25" value="0">
+        </input>
+        <br />
+        <p>Enter text to be encrypted:</p>
+        <textarea id="KeyPlainText" rows="16" cols="80"></textarea>
+        <br />
+        <p id="KeyEErrorOut"></p>
+        <button id="KeyEBtn" onclick="keywordCipherEncrypt()">Encrypt</button>
+        <br />
+        <p id="KeyECipherOut"></p>
+      </div>
+      <div id="VigenereCipherDivE">
+        <h3>Vigenere Cipher</h3>
+      </div>
+      <div id="ColumnarCipherDivE">
+        <h3>Columnar Transposition Cipher</h3>
+        <label>Keyword:</label>
+        <input type="text" id="ColEKeyword">
+        </input>
+        <br />
+        <p>Enter text to be encrypted:</p>
+        <textarea id="ColPlainText" rows="16" cols="80"></textarea>
+        <br />
+        <p id="ColEErrorOut"></p>
+        <button id="ColEBtn" onclick="columnarCipherEncrypt()">Encrypt</button>
+        <br />
+        <p id="ColECipherOut"></p>
+      </div>
+    </div>
+  </body>
+</html>

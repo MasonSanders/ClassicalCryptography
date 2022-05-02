@@ -1,0 +1,9 @@
+Basic structure of the html file:
+there are two top level divs, DecryptDiv and EncryptDiv
+those divide the cipher types into their own divs
+an element with a D in its id means that it's for Decryption
+an element  with E in its id means thata it's for Encryption
+for example: ShiftCipherDivE is for encryption
+ShiftDPlainOut is for Decryption
+The naming convention for the Id's of all my elements begin with a capital letter with camel case.
+the naming convention in my javascript methods and variables begin with lowercase followed by camel case.

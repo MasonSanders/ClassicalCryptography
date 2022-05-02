@@ -1,0 +1,8 @@
+CHANGELOG
+
+2/23/22(Mason) - Created solver.html and solver.js, pushed to github.
+3/18/22(Mason) - Created basic UI for Decryption, added empty functions, implemented shiftCipherDecrypt
+3/24/22(Mason) - Added function to remove spaces from input text
+4/12/22(Mason) - Added valid string function and started work on shift cipher encryption
+4/18/22(Mason) - Added columnar transposition encryption and decryption
+4/20/22(Mason) - Added keyword cipher encryption and decryption

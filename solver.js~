@@ -1,0 +1,445 @@
+// solver.js
+
+// base alphabet global variable
+var alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+// vigenere teble global constant
+// to be treated like a matrix (treat the strings as char arrays)
+// the alphabet aligned across the top is the plaintext alphabet
+// the alphabet alinged down the side is the key alphabet.
+var vigenereTable = ["abcdefghijklmnopqrstuvwxyz",
+                     "bcdefghijklmnopqrstuvwxyza",
+                     "cdefghijklmnopqrstuvwxyzab",
+                     "defghijklmnopqrstuvwxyzabc",
+                     "efghijklmnopqrstuvwxyzabcd",
+                     "fghijklmnopqrstuvwxyzabcde",
+                     "ghijklmnopqrstuvwxyzabcdef",
+                     "hijklmnopqrstuvwxyzabcdefg",
+                     "ijklmnopqrstuvwxyzabcdefgh",
+                     "jklmnopqrstuvwxyzabcdefghi",
+                     "klmnopqrstuvwxyzabcdefghij",
+                     "lmnopqrstuvwxyzabcdefghijk",
+                     "mnopqrstuvwxyzabcdefghijkl",
+                     "nopqrstuvwxyzabcdefghijklm",
+                     "opqrstuvwxyzabcdefghijklmn",
+                     "pqrstuvwxyzabcdefghijklmno",
+                     "qrstuvwxyzabcdefghijklmnop",
+                     "rstuvwxyzabcdefghijklmnopq",
+                     "stuvwxyzabcdefghijklmnopqr",
+                     "tuvwxyzabcdefghijklmnopqrs",
+                     "uvwxyzabcdefghijklmnopqrst",
+                     "vwxyzabcdefghujklmnopqrstu",
+                     "wxyzabcdefghijklmnopqrstuv",
+                     "xyzabcdefghijklmnopqrstuvw",
+                     "yzabcdefghijklmnopqrstuvwx",
+                     "zabcdefghijklmnopqrstuvwxy"];
+
+// isValidString function to allow only characters in the alphabet
+// can help prevent html injection
+// call this after removing spaces from a string
+function isValidString(str) {
+  for (let i = 0; i < str.length; i++) {
+    if (!alphabet.includes(str.charAt(i))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// print error function to easily print errors to page elements
+function printError(elementId, msg) {
+  let element = document.getElementById(elementId);
+  element.textContent = msg;
+}
+
+// function to remove spaces from text
+function removeSpaces(str) {
+  // loop through the string and remove spaces
+  for (let i = 0; i < str.length; i++) {
+    if (str.charAt(i) == ' ') {
+						
+      // avoid index out of bounds
+      if (i != str.length - 1) {
+        str = str.substring(0, i) + str.substring(i + 1);
+      } else {
+        str = str.substring(0, i);
+      }
+    }
+  }
+	
+  // return the string
+  return str;
+}
+
+// remove duplicate letters from a string
+function removeDuplicates(str) {
+  let seen = "";
+
+  for (let i = 0; i < str.length; i++) {
+    if (seen.indexOf(str.charAt(i)) == -1) {
+      seen += str.charAt(i);
+    }
+  }
+  
+  return seen;
+}
+
+/*
+ *	Decryption functions
+ */
+
+// Shift Cipher Decryption - Mason
+function shiftCipherDecrypt() {
+  document.getElementById("ShiftDPlainOut").innerHTML = "";
+  // get textarea contents
+  let cipherText = document.getElementById("ShiftCipherText").value;
+  cipherText = cipherText.toLowerCase();
+
+  // remove spaces from the text
+  cipherText = removeSpaces(cipherText);
+
+  // reset the error field
+  printError("ShiftDErrorOut", "");
+
+  // check if the string is valid
+  if (!isValidString(cipherText)){
+	  printError("ShiftDErrorOut", "Text contains invalid characters");
+	  return 1;
+  }
+	
+  // error if contents are empty			
+  if (cipherText.length == 0) {
+    printError("ShiftDErrorOut", "Cipher text must exist.");
+    return 1;
+  }
+
+	
+  let plainText = cipherText;
+	
+  let cipher = alphabet;
+  // loop through all 26 possible cipher alphabets
+  for (let i = 0; i < 26; i++) {
+    plainText = cipherText;
+    if (i != 0) {
+      cipher = cipher.charAt(25) + cipher.substring(0, 25);
+    }
+    // loop through the plainText and replace the cipher with the plaintext alphabet
+    for (let j = 0; j < plainText.length; j++) {
+      plainText = plainText.substring(0, j) 
+                + alphabet.charAt(cipher.indexOf(plainText.charAt(j)))
+                + plainText.substring(j + 1);
+			
+    }
+    // output the shifted text to the document
+    document.getElementById("ShiftDPlainOut").innerHTML += plainText + "<br />";
+  }
+}
+
+// Keyword Cipher Decryption - Kyle
+function keywordCipherDecrypt() {
+	// given keyword and shift amount
+  document.getElementById("KeyDPlainOut").innerHTML = "";
+  let keyword = document.getElementById("KeyDKeyword").value;
+  let cipherText = document.getElementById("KeyCipherText").value;
+  keyword = keyword.toLowerCase();
+  keyword = removeSpaces(keyword);
+  keyword = removeDuplicates(keyword);
+  cipherText = cipherText.toLowerCase();
+  cipherText = removeSpaces(cipherText);
+
+  printError("KeyDErrorOut", "");
+
+  if (!isValidString(keyword) || keyword.length > 26 || keyword.length == 0) {
+    printError("KeyDErrorOut", "Keyword is invalid. make sure it's 26 characters or less.");
+    return 1;
+  }
+  if (!isValidString(cipherText)) {
+    printError("KeyDErrorOut", "Text contains invalid characters.");
+    return 1;
+  }
+  if (cipherText.length == 0) {
+    printError("KeyDErrorOut", "Cipher Text must exist.");
+    return 1;
+  }
+  // construct the cipher alphabet
+  // first, construct the part that doesn't have the keyword
+  
+  let cipherAlphabet = "";
+  for (let i = 0; i < alphabet.length; i++) {
+    let curChar = alphabet.charAt(i);
+    if (keyword.indexOf(curChar) == -1) {
+      cipherAlphabet = cipherAlphabet + curChar;
+    }
+  }
+
+  // second, insert the keyword at the front of the cipher alphabet
+  cipherAlphabet = keyword + cipherAlphabet;
+  // loop through each shift amount
+  let plainText = cipherText;
+  for (let i = 0; i < 26; i++) {
+    plainText = cipherText;
+    if (i != 0) {
+      cipherAlphabet = cipherAlphabet.charAt(25) + cipherAlphabet.substring(0, 25); 
+    }
+    for (let j = 0; j < plainText.length; j++) {
+      plainText = plainText.substring(0, j)
+                + alphabet.charAt(cipherAlphabet.indexOf(plainText.charAt(j)))
+                + plainText.substring(j + 1);
+    }
+    document.getElementById("KeyDPlainOut").innerHTML += plainText + "<br />"; 
+  }
+}
+
+// Vigenere Cipher Decryption - Kyle
+function vigenereCipherDecrypt() {
+
+}
+
+// Columnar Transposition Cipher Decryption - Mason
+function columnarCipherDecrypt() {
+	// keyword is given, want to avoid writing a factorial algorithm
+  document.getElementById("ColDPlainOut").innerHTML = "";
+  let keyword = document.getElementById("ColDKeyword").value;
+  let cipherText = document.getElementById("ColCipherText").value;
+  keyword = keyword.toLowerCase();
+  keyword = removeSpaces(keyword);
+  keyword = removeDuplicates(keyword);
+  cipherText = cipherText.toLowerCase();
+  cipherText = removeSpaces(cipherText);
+
+	printError("ColDErrorOut", "");
+
+	if (!isValidString(keyword) || keyword.length > 10 || keyword.length == 0) {
+    printError("ColDErrorOut", "Keyword is invalid. Make sure its 10 characters or less");
+    return 1;
+  }
+  if (!isValidString(cipherText)) {
+    printError("ColDErrorOut", "Text contains invalid characters.");
+    return 1;
+  }
+  if (cipherText.length == 0) {
+    printError("ColDErrorOut", "Plain text must exist.");
+    return 1;
+  }
+  
+  // find number of columns and rows
+  let numCols = keyword.length;
+  let numRows = cipherText.length / keyword.length;
+
+  let colOrder = [];
+
+  for (let i = 0; i < keyword.length; i++) {
+    colOrder[i] = alphabet.indexOf(keyword.charAt(i));
+  }
+  
+  let sortedOrder = [...colOrder];
+  sortedOrder.sort(function(a, b){return a - b});
+
+  // create 1 digit actual order from sorted order
+  for (let i = 0; i < colOrder.length; i++) {
+    colOrder[i] = sortedOrder.indexOf(colOrder[i]);
+  }
+  
+  // write ciphertext into rows,
+  let rows = [];
+  while (cipherText.length > 0) {
+    let r = cipherText.substring(0, numRows);
+    rows.push(r);
+    cipherText = cipherText.substring(numRows);
+  }
+  
+
+  let plainText = "";
+  for (let i = 0; i < numRows; i++) {
+    let row = "";
+    for (let j = 0; j < colOrder.length; j++) {
+      row = row + rows[colOrder[j]].charAt(i);
+    }
+    plainText = plainText + row;
+  }
+
+  document.getElementById("ColDPlainOut").innerHTML += plainText + "<br />";
+} 
+
+
+/*
+ *	Encryption functions
+ */ 
+
+// Shift Cipher Encryption
+function shiftCipherEncrypt() {
+	document.getElementById("ShiftECipherOut").innerHTML = "";
+	let plainText = document.getElementById("ShiftPlainText").value;
+	plainText = plainText.toLowerCase();
+	plainText = removeSpaces(plainText);
+	let shiftAmount = document.getElementById("CaesarShiftAmount").value;
+	shiftAmount = parseInt(shiftAmount);
+
+	printError("ShiftEErrorOut", "");
+	
+	if (!isValidString(plainText)) {
+		printError("ShiftEErrorOut", "Text contains invalid characters.");
+		return 1;
+	}
+
+	if (plainText.length == 0) {
+		printError("ShiftEErrorOut", "Plain Text must exist.");
+    return 1;
+	}
+	
+	// set cipher alphabet, can just use an index of the vigenere table
+	let cipherAlphabet = vigenereTable[shiftAmount];
+	let cipherText = plainText;
+
+	// loop through cipher text and replace with plain text
+  for (let i = 0; i < cipherText.length; i++) {
+    cipherText = cipherText.substring(0, i)
+               + cipherAlphabet.charAt(alphabet.indexOf(cipherText.charAt(i)))
+               + cipherText.substring(i + 1);
+  }
+	// output to the document
+  document.getElementById("ShiftECipherOut").innerHTML += cipherText + "<br />";
+	
+}
+
+// Keyword Cipher Encryption
+function keywordCipherEncrypt() {
+  // given keyword and shift amount
+  document.getElementById("KeyECipherOut").innerHTML = "";
+  let keyword = document.getElementById("KeyEKeyword").value;
+  let shiftAmount = document.getElementById("KeyShiftAmount").value;
+  let plainText = document.getElementById("KeyPlainText").value;
+  shiftAmount = parseInt(shiftAmount);
+  keyword = keyword.toLowerCase();
+  keyword = removeSpaces(keyword);
+  keyword = removeDuplicates(keyword);
+  plainText = plainText.toLowerCase();
+  plainText = removeSpaces(plainText);
+
+  printError("KeyEErrorOut", "");
+
+  if (!isValidString(keyword) || keyword.length > 26 || keyword.length == 0) {
+    printError("KeyEErrorOut", "Keyword is invalid. make sure it's 26 characters or less.");
+    return 1;
+  }
+  if (!isValidString(plainText)) {
+    printError("KeyEErrorOut", "Text contains invalid characters.");
+    return 1;
+  }
+  if (plainText.length == 0) {
+    printError("KeyEErrorOut", "Plain Text must exist.");
+    return 1;
+  }
+  // construct the cipher alphabet
+  // first, construct the part that doesn't have the keyword
+  
+  let cipherAlphabet = "";
+  for (let i = 0; i < alphabet.length; i++) {
+    let curChar = alphabet.charAt(i);
+    if (keyword.indexOf(curChar) == -1) {
+      cipherAlphabet = cipherAlphabet + curChar;
+    }
+  }
+
+  // second, insert the keyword at the front of the cipher alphabet
+  cipherAlphabet = keyword + cipherAlphabet;
+
+  // now shift the alphabet to the desired amount
+  let firstHalf = cipherAlphabet.substring(shiftAmount);
+  let secondHalf = cipherAlphabet.substring(0, shiftAmount);
+  cipherAlphabet = firstHalf + secondHalf;
+
+  // loop through the plainText and replace it with the cipher text
+  let cipherText = plainText;
+  for (let i = 0; i < cipherText.length; i++) {
+    cipherText = cipherText.substring(0, i)
+               + cipherAlphabet.charAt(alphabet.indexOf(cipherText.charAt(i)))
+               + cipherText.substring(i + 1);
+  }
+
+  document.getElementById("KeyECipherOut").innerHTML = cipherText + "<br />";
+
+}
+
+// Vigenere Cipher Encryption
+function vigenereCipherEncrypt() {
+
+}
+
+// Columnar Transposition Cipher Encryption
+function columnarCipherEncrypt() {
+  document.getElementById("ColECipherOut").innerHTML = "";
+  let keyword = document.getElementById("ColEKeyword").value;
+  let plainText = document.getElementById("ColPlainText").value;
+  keyword = keyword.toLowerCase();
+  keyword = removeSpaces(keyword);
+  keyword = removeDuplicates(keyword);
+  plainText = plainText.toLowerCase();
+  plainText = removeSpaces(plainText);
+
+  printError("ColEErrorOut", "");
+
+  if (!isValidString(keyword) || keyword.length > 10 || keyword.length == 0) {
+    printError("ColEErrorOut", "Keyword is invalid, make sure its 10 characters or less.");
+    return 1;
+  }
+  if (!isValidString(plainText)) {
+    printError("ColEErrorOut", "Text contains invalid characters.");
+    return 1;
+  }
+  if (plainText.length == 0) {
+    printError("ColEErrorOut", "Plain Text must exist.");
+    return 1;
+  }
+
+
+  // find the number and order of columns
+  let numCols = keyword.length
+  let colOrder = []
+
+  // add X's to the end of the plaintext if it doesn't fit
+  while (plainText.length % keyword.length != 0) {
+    plainText = plainText + "x";
+  }
+  // find the number of rows
+  let numRows = plainText.length / keyword.length;
+
+  // push the alphabetical position to the column order
+  for (let i = 0; i < keyword.length; i++) {
+    colOrder[i] = alphabet.indexOf(keyword.charAt(i));
+  }
+  // make a binary tree of
+  let sortedOrder = [...colOrder];
+  sortedOrder.sort(function(a, b){return a - b});
+
+  // change values in colOrder to the actual order
+  for (let i = 0; i < colOrder.length; i++) {
+    colOrder[i] = sortedOrder.indexOf(colOrder[i]);
+  }
+  
+  // write the word into a matrix
+  let mat = [];
+  for (let i = 0; i < numRows; i++) {
+    let row = "";
+    for (let j = 0; j < numCols; j++) {
+      row = row + plainText.charAt(j);
+    }
+    mat[i] = row;
+    if (plainText.length > numCols) {
+      plainText = plainText.substring(numCols);
+    }
+  }
+
+  // put columns of matrix into ciphertext in the correct order
+  let cipherText = "";
+  for (let i = 0; i < colOrder.length; i++) {
+    let col = "";
+    for (let j = 0; j < numRows; j++) {
+      col = col + mat[j].charAt(colOrder[i]);
+    }
+    cipherText = cipherText + col;
+  }
+
+  // output the enciphered string
+  document.getElementById("ColECipherOut").innerHTML += cipherText + "<br />";
+}
